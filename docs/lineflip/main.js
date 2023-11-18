@@ -1,10 +1,13 @@
-title = "LINE FLIP";
+//game title
+title = "LINE FLIP"; 
 
+//instructions
 description = ` 
 [TAP] to 
 flip sides
 `;
 
+//character designs
 characters = [
   `
 lllll
@@ -31,32 +34,34 @@ lllll
 `,
 ]; //for custom sprties 6x6
 
+//setting background and music
 options = {
   theme: "pixel",
   isPlayingBgm: true,
   isReplayEnabled: true,
-  seed: 6
+  seed: 11
 };
 
+//defining variables
 /** @type {Vector[]} */
-let coins;
-let nextCoinDist;
-let enemies;
+let coins; //vector of coins to collect
+let nextCoinDist; //distance between coins
+let enemies; //vector of enemies to avoid
 
+//how much items shift by each frame/to make them slide across the screen
 let scr;
 
+//player variables
 let player;
 let playerFlip;
 let playerY;
 const playerX = 10;
 
-let coinCounter;
-
-// color("red");
-// player = char("a", playerX, playerY);
+let coinCounter; //used for increasing speed each time you collect 3 coins
 
 function update() {
-  //init --> anything u want to happen before update?
+  //init --> anything you want to happen before update
+  //setting default parameters
   if (!ticks) {
     coins = [vec(100, 46)];
     nextCoinDist = 5; 
@@ -64,103 +69,73 @@ function update() {
     scr = 0.25;
     playerFlip = 1;
     playerY = 47;
-    coinCounter = 0
-    // player = { y: 10, my: 0, vy: 0, speed: 1, side: 1, state: "jump" };
-
+    coinCounter = 0;
   }
-  //most of game happens after
+
+  //creating character and making it green
   color("green");
   player = char("a", playerX, playerY, {
     // @ts-ignore
     mirror: { y: playerFlip },
   });
 
+  //creating yellow coins and removing it when player and coins collide
   color("yellow")
-
-  // scr = 0.25;
-  // coins.forEach((c) => {
   remove(coins, (c) => {
-    c.x -= scr;
-    // char("b", c)
-    // let collectable =  Math.random() < 0.5 ? "b" : "c";
+    c.x -= scr; //moves coins across the screen by scr amount each frame
 
-    const isCoin = char("b", c).isColliding.char;
-    if(isCoin.a || isCoin.b){
-      // console.log(isCoin);
+    const isCoin = char("b", c).isColliding.char; //creates colliding coin
+    if(isCoin.a || isCoin.b){ //checks if the coin collided
       coinCounter++;
-      if(coinCounter == 5){
+      if(coinCounter == 3){ //increase speed for every 3 coins collected
         scr += 0.05;
         coinCounter = 0;
-        // console.log(scr);
       }
-      play("coin");
-      addScore(1);
+      play("coin"); //play coin sound
+      addScore(1); //update score
       return true;
     }
     
   });
 
+  //creating red enemies and ending the game when player collides with enemy
   color("red")
   remove(enemies, (e) => {
-    e.x -= scr;
-    // char("b", c)
-    // let collectable =  Math.random() < 0.5 ? "b" : "c";
-
-    const isEnemy = char("c", e).isColliding.char;
-    if(isEnemy.a || isEnemy.b){
-      play("powerUp");
-      end();
+    e.x -= scr; //moves enemy by scr amount each frame
+    const isEnemy = char("c", e).isColliding.char; //creating colliding enemy
+    if(isEnemy.a || isEnemy.b){ //check if enemy collided with player
+      play("powerUp"); //play sound
+      end(); //end the game
       return true;
     }
-    
   });
 
+  //updating coin distance
   nextCoinDist += scr;
-  while (nextCoinDist > 0){
+  while (nextCoinDist > 0){ 
+    //randomly pushing coins and enemies to appear in each row
     if(Math.random() < 0.5 ? true : false){
-      coins.push(vec(102 + nextCoinDist, Math.random() < 0.5 ? 46 : 56));
+      coins.push(vec(102 + nextCoinDist, Math.random() < 0.5 ? 46 : 56)); //pushes coin randomly to top or bottom row
     } else {
-      enemies.push(vec(102 + nextCoinDist, Math.random() < 0.5 ? 46 : 56));
+      enemies.push(vec(102 + nextCoinDist, Math.random() < 0.5 ? 46 : 56)); //pushes enemy randomly to top or bottom row
     }
-    // coins.push(vec(102 + nextCoinDist, Math.random() < 0.5 ? 46 : 56));
-    // enemies.push(vec(102 + nextCoinDist, Math.random() < 0.5 ? 46 : 56));
-    nextCoinDist -= rnd(20, 30);
+    nextCoinDist -= rnd(20, 30); //updating coin distance to random value
   }
 
-  // times(9, (i) => {
-  //   console.log(i);
-  // });
-
-  // color("red");
-  // rect(15, 15, 25, 10);
-  // char("a", 10, 47);
-
-  // color("yellow");
-  // char("b", 50, 10);
-
+  //draws blue line/platform
   color("cyan");
   rect(0, 50, 100, 2);
 
+  //checking for user input
   if(input.isJustPressed){
+    //if pressed, switch the player to top or bottom of the line
     if(playerY == 47){
       playerY = 55;
-      // player = char("a", playerX, playerY);
     } else {
       playerY = 47;
     }
-    playerFlip = -playerFlip;
+    playerFlip = -playerFlip; //used to mirror the character image when flipped
   }
-
-  // remove(coins, (c) => {
-  //   const isCoin = char("c", c).isColliding.char;
-  //   if(isCoin.a || isCoin.b){
-  //     play("coin");
-  //     addScore(1);
-  //     return true;
-  //   }
-  // });
-
 }
-
 
 
